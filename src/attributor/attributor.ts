@@ -12,15 +12,15 @@ export default class Attributor {
   whitelist: string[] | undefined;
 
   static keys(node: HTMLElement): string[] {
-    return [].map.call(node.attributes, function(item: Attr) {
+    return [].map.call(node.attributes, function (item: Attr) {
       return item.name;
-    });
+    }) as string[];
   }
 
   constructor(attrName: string, keyName: string, options: AttributorOptions = {}) {
     this.attrName = attrName;
     this.keyName = keyName;
-    let attributeBit = Registry.Scope.TYPE & Registry.Scope.ATTRIBUTE;
+    const attributeBit = Registry.Scope.TYPE & Registry.Scope.ATTRIBUTE;
     if (options.scope != null) {
       // Ignore type bits, force attribute bit
       this.scope = (options.scope & Registry.Scope.LEVEL) | attributeBit;
@@ -37,7 +37,7 @@ export default class Attributor {
   }
 
   canAdd(node: HTMLElement, value: any): boolean {
-    let match = Registry.query(node, Registry.Scope.BLOT & (this.scope | Registry.Scope.TYPE));
+    const match = Registry.query(node, Registry.Scope.BLOT & (this.scope | Registry.Scope.TYPE));
     if (match == null) return false;
     if (this.whitelist == null) return true;
     if (typeof value === 'string') {
@@ -52,7 +52,7 @@ export default class Attributor {
   }
 
   value(node: HTMLElement): string {
-    let value = node.getAttribute(this.keyName);
+    const value = node.getAttribute(this.keyName);
     if (this.canAdd(node, value) && value) {
       return value;
     }

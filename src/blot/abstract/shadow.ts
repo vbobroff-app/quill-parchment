@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Blot, Parent, Formattable } from './blot';
 import * as Registry from '../../registry';
 
@@ -7,14 +8,10 @@ class ShadowBlot implements Blot {
   static scope: Registry.Scope;
   static tagName: string;
 
-  // @ts-ignore
-  prev: Blot;
-  // @ts-ignore
-  next: Blot;
-  // @ts-ignore
-  parent: Parent;
-  // @ts-ignore
-  scroll: Parent;
+  prev!: Blot;
+  next!: Blot;
+  parent!: Parent;
+  scroll!: Parent;
 
   // Hack for accessing inherited static methods
   get statics(): any {
@@ -50,8 +47,7 @@ class ShadowBlot implements Blot {
   }
 
   constructor(public domNode: Node) {
-    // @ts-ignore
-    this.domNode[Registry.DATA_KEY] = { blot: this };
+    (this.domNode as any)[Registry.DATA_KEY] = { blot: this };
   }
 
   attach(): void {
@@ -61,35 +57,34 @@ class ShadowBlot implements Blot {
   }
 
   clone(): Blot {
-    let domNode = this.domNode.cloneNode(false);
+    const domNode = this.domNode.cloneNode(false);
     return Registry.create(domNode);
   }
 
   detach() {
     if (this.parent != null) this.parent.removeChild(this);
-    // @ts-ignore
-    delete this.domNode[Registry.DATA_KEY];
+    delete (this.domNode as any)[Registry.DATA_KEY];
   }
 
   deleteAt(index: number, length: number): void {
-    let blot = this.isolate(index, length);
+    const blot = this.isolate(index, length);
     blot.remove();
   }
 
   formatAt(index: number, length: number, name: string, value: any): void {
-    let blot = this.isolate(index, length);
+    const blot = this.isolate(index, length);
     if (Registry.query(name, Registry.Scope.BLOT) != null && value) {
       blot.wrap(name, value);
     } else if (Registry.query(name, Registry.Scope.ATTRIBUTE) != null) {
-      let parent = <Parent & Formattable>Registry.create(this.statics.scope);
+      const parent = <Parent & Formattable>Registry.create(this.statics.scope);
       blot.wrap(parent);
       parent.format(name, value);
     }
   }
 
   insertAt(index: number, value: string, def?: any): void {
-    let blot = def == null ? Registry.create('text', value) : Registry.create(value, def);
-    let ref = this.split(index);
+    const blot = def == null ? Registry.create('text', value) : Registry.create(value, def);
+    const ref = this.split(index);
     this.parent.insertBefore(blot, ref);
   }
 
@@ -102,8 +97,7 @@ class ShadowBlot implements Blot {
     if (refBlot != null) {
       refDomNode = refBlot.domNode;
     }
-    if (this.domNode.parentNode != parentBlot.domNode ||
-        this.domNode.nextSibling != refDomNode) {
+    if (this.domNode.parentNode != parentBlot.domNode || this.domNode.nextSibling != refDomNode) {
       parentBlot.domNode.insertBefore(this.domNode, refDomNode);
     }
     this.parent = parentBlot;
@@ -111,7 +105,7 @@ class ShadowBlot implements Blot {
   }
 
   isolate(index: number, length: number): Blot {
-    let target = this.split(index);
+    const target = this.split(index);
     target.split(length);
     return target;
   }
@@ -126,11 +120,8 @@ class ShadowBlot implements Blot {
   }
 
   optimize(context: { [key: string]: any }): void {
-    // TODO clean up once we use WeakMap
-    // @ts-ignore
-    if (this.domNode[Registry.DATA_KEY] != null) {
-      // @ts-ignore
-      delete this.domNode[Registry.DATA_KEY].mutations;
+    if ((this.domNode as any)[Registry.DATA_KEY] != null) {
+      delete (this.domNode as any)[Registry.DATA_KEY].mutations;
     }
   }
 
@@ -148,7 +139,7 @@ class ShadowBlot implements Blot {
   }
 
   replaceWith(name: string | Blot, value?: any): Blot {
-    let replacement = typeof name === 'string' ? Registry.create(name, value) : name;
+    const replacement = typeof name === 'string' ? Registry.create(name, value) : name;
     replacement.replace(this);
     return replacement;
   }
@@ -162,7 +153,7 @@ class ShadowBlot implements Blot {
   }
 
   wrap(name: string | Parent, value?: any): Parent {
-    let wrapper = typeof name === 'string' ? <Parent>Registry.create(name, value) : name;
+    const wrapper = typeof name === 'string' ? <Parent>Registry.create(name, value) : name;
     if (this.parent != null) {
       this.parent.insertBefore(wrapper, this.next);
     }

@@ -1,6 +1,5 @@
 import { Blot } from './abstract/blot';
 import ContainerBlot from './abstract/container';
-import LinkedList from '../collection/linked-list';
 import * as Registry from '../registry';
 
 const OBSERVER_CONFIG = {
@@ -39,7 +38,7 @@ class ScrollBlot extends ContainerBlot {
   deleteAt(index: number, length: number): void {
     this.update();
     if (index === 0 && length === this.length()) {
-      this.children.forEach(function(child) {
+      this.children.forEach(function (child) {
         child.remove();
       });
     } else {
@@ -67,23 +66,19 @@ class ScrollBlot extends ContainerBlot {
     // so we cannot just mutations.push.apply(mutations, this.observer.takeRecords());
     while (records.length > 0) mutations.push(records.pop());
     // TODO use WeakMap
-    let mark = (blot: Blot | null, markParent: boolean = true) => {
+    const mark = (blot: Blot | null, markParent = true) => {
       if (blot == null || blot === this) return;
       if (blot.domNode.parentNode == null) return;
-      // @ts-ignore
-      if (blot.domNode[Registry.DATA_KEY].mutations == null) {
-        // @ts-ignore
-        blot.domNode[Registry.DATA_KEY].mutations = [];
+      if ((blot.domNode as any)[Registry.DATA_KEY].mutations == null) {
+        (blot.domNode as any)[Registry.DATA_KEY].mutations = [];
       }
       if (markParent) mark(blot.parent);
     };
-    let optimize = function(blot: Blot) {
+    const optimize = function (blot: Blot) {
       // Post-order traversal
       if (
-        // @ts-ignore
-        blot.domNode[Registry.DATA_KEY] == null ||
-        // @ts-ignore
-        blot.domNode[Registry.DATA_KEY].mutations == null
+        (blot.domNode as any)[Registry.DATA_KEY] == null ||
+        (blot.domNode as any)[Registry.DATA_KEY].mutations == null
       ) {
         return;
       }
@@ -97,17 +92,17 @@ class ScrollBlot extends ContainerBlot {
       if (i >= MAX_OPTIMIZE_ITERATIONS) {
         throw new Error('[Parchment] Maximum optimize iterations reached');
       }
-      remaining.forEach(function(mutation: MutationRecord) {
-        let blot = Registry.find(mutation.target, true);
+      remaining.forEach(function (mutation: MutationRecord) {
+        const blot = Registry.find(mutation.target, true);
         if (blot == null) return;
         if (blot.domNode === mutation.target) {
           if (mutation.type === 'childList') {
             mark(Registry.find(mutation.previousSibling, false));
-            [].forEach.call(mutation.addedNodes, function(node: Node) {
-              let child = Registry.find(node, false);
+            [].forEach.call(mutation.addedNodes, function (node: Node) {
+              const child = Registry.find(node, false);
               mark(child, false);
               if (child instanceof ContainerBlot) {
-                child.children.forEach(function(grandChild: Blot) {
+                child.children.forEach(function (grandChild: Blot) {
                   mark(grandChild, false);
                 });
               }
@@ -129,35 +124,23 @@ class ScrollBlot extends ContainerBlot {
     mutations = mutations || this.observer.takeRecords();
     // TODO use WeakMap
     mutations
-      .map(function(mutation: MutationRecord) {
-        let blot = Registry.find(mutation.target, true);
+      .map(function (mutation: MutationRecord) {
+        const blot = Registry.find(mutation.target, true);
         if (blot == null) return null;
-        // @ts-ignore
-        if (blot.domNode[Registry.DATA_KEY].mutations == null) {
-          // @ts-ignore
-          blot.domNode[Registry.DATA_KEY].mutations = [mutation];
+        if ((blot.domNode as any)[Registry.DATA_KEY].mutations == null) {
+          (blot.domNode as any)[Registry.DATA_KEY].mutations = [mutation];
           return blot;
         } else {
-          // @ts-ignore
-          blot.domNode[Registry.DATA_KEY].mutations.push(mutation);
+          (blot.domNode as any)[Registry.DATA_KEY].mutations.push(mutation);
           return null;
         }
       })
       .forEach((blot: Blot | null) => {
-        if (
-          blot == null ||
-          blot === this ||
-          //@ts-ignore
-          blot.domNode[Registry.DATA_KEY] == null
-        )
-          return;
-        // @ts-ignore
-        blot.update(blot.domNode[Registry.DATA_KEY].mutations || [], context);
+        if (blot == null || blot === this || (blot.domNode as any)[Registry.DATA_KEY] == null) return;
+        blot.update((blot.domNode as any)[Registry.DATA_KEY].mutations || [], context);
       });
-    // @ts-ignore
-    if (this.domNode[Registry.DATA_KEY].mutations != null) {
-      // @ts-ignore
-      super.update(this.domNode[Registry.DATA_KEY].mutations, context);
+    if ((this.domNode as any)[Registry.DATA_KEY].mutations != null) {
+      super.update((this.domNode as any)[Registry.DATA_KEY].mutations, context);
     }
     this.optimize(mutations, context);
   }

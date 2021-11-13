@@ -1,9 +1,6 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  extends: [
-    'airbnb-typescript',
-  ],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
@@ -15,14 +12,19 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js', 'webpack.config.js'],
   plugins: [
-    'import',
+    'import', 
+    "@typescript-eslint",
   ],
   extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "prettier",
+    "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended" 
   ],
   rules: {
-    'no-unused-vars': 'warn',
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": [2, {"vars": "all", "args": "off"}],
     'arrow-parens': 'warn',
     'no-unused-expressions': 'off',
     'prefer-destructuring': 'off',

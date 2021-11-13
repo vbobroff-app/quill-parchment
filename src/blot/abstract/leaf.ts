@@ -1,4 +1,5 @@
-import { Formattable, Leaf } from './blot';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Leaf } from './blot';
 import ShadowBlot from './shadow';
 import * as Registry from '../../registry';
 
@@ -10,17 +11,14 @@ class LeafBlot extends ShadowBlot implements Leaf {
   }
 
   index(node: Node, offset: number): number {
-    if (
-      this.domNode === node ||
-      this.domNode.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_CONTAINED_BY
-    ) {
+    if (this.domNode === node || this.domNode.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_CONTAINED_BY) {
       return Math.min(offset, 1);
     }
     return -1;
   }
 
   position(index: number, inclusive?: boolean): [Node, number] {
-    let offset = [].indexOf.call(this.parent.domNode.childNodes, this.domNode);
+    let offset = Array.from(this.parent.domNode.childNodes).indexOf(this.domNode as ChildNode);
     if (index > 0) offset += 1;
     return [this.parent.domNode, offset];
   }

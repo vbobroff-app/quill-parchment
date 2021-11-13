@@ -7,7 +7,7 @@ class BlockBlot extends FormatBlot {
   static tagName = 'P';
 
   static formats(domNode: HTMLElement): any {
-    let tagName = (<any>Registry.query(BlockBlot.blotName)).tagName;
+    const tagName = (<any>Registry.query(BlockBlot.blotName)).tagName;
     if (domNode.tagName === tagName) return undefined;
     return super.formats(domNode);
   }
@@ -35,8 +35,8 @@ class BlockBlot extends FormatBlot {
       // Insert text or inline
       super.insertAt(index, value, def);
     } else {
-      let after = this.split(index);
-      let blot = Registry.create(value, def);
+      const after = this.split(index);
+      const blot = Registry.create(value, def);
       after.parent.insertBefore(blot, after);
     }
   }

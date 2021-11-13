@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Blot, Leaf } from './abstract/blot';
 import LeafBlot from './abstract/leaf';
 import * as Registry from '../registry';
@@ -15,7 +16,6 @@ class TextBlot extends LeafBlot implements Leaf {
 
   static value(domNode: Text): string {
     let text = domNode.data;
-    // @ts-ignore
     if (text['normalize']) text = text['normalize']();
     return text;
   }
@@ -60,16 +60,16 @@ class TextBlot extends LeafBlot implements Leaf {
     }
   }
 
-  position(index: number, inclusive: boolean = false): [Node, number] {
+  position(index: number, inclusive = false): [Node, number] {
     return [this.domNode, index];
   }
 
-  split(index: number, force: boolean = false): Blot {
+  split(index: number, force = false): Blot {
     if (!force) {
       if (index === 0) return this;
       if (index === this.length()) return this.next;
     }
-    let after = Registry.create(this.domNode.splitText(index));
+    const after = Registry.create(this.domNode.splitText(index));
     this.parent.insertBefore(after, this.next);
     this.text = this.statics.value(this.domNode);
     return after;
@@ -77,7 +77,7 @@ class TextBlot extends LeafBlot implements Leaf {
 
   update(mutations: MutationRecord[], context: { [key: string]: any }): void {
     if (
-      mutations.some(mutation => {
+      mutations.some((mutation) => {
         return mutation.type === 'characterData' && mutation.target === this.domNode;
       })
     ) {

@@ -2,7 +2,6 @@ import Attributor from '../../attributor/attributor';
 import AttributorStore from '../../attributor/store';
 import { Blot, Parent, Formattable } from './blot';
 import ContainerBlot from './container';
-import ShadowBlot from './shadow';
 import * as Registry from '../../registry';
 
 class FormatBlot extends ContainerBlot implements Formattable {
@@ -23,7 +22,7 @@ class FormatBlot extends ContainerBlot implements Formattable {
   }
 
   format(name: string, value: any): void {
-    let format = Registry.query(name);
+    const format = Registry.query(name);
     if (format instanceof Attributor) {
       this.attributes.attribute(format, value);
     } else if (value) {
@@ -34,8 +33,8 @@ class FormatBlot extends ContainerBlot implements Formattable {
   }
 
   formats(): { [index: string]: any } {
-    let formats = this.attributes.values();
-    let format = this.statics.formats(this.domNode);
+    const formats = this.attributes.values();
+    const format = this.statics.formats(this.domNode);
     if (format != null) {
       formats[this.statics.blotName] = format;
     }
@@ -43,7 +42,7 @@ class FormatBlot extends ContainerBlot implements Formattable {
   }
 
   replaceWith(name: string | Blot, value?: any): Blot {
-    let replacement = <FormatBlot>super.replaceWith(name, value);
+    const replacement = <FormatBlot>super.replaceWith(name, value);
     this.attributes.copy(replacement);
     return replacement;
   }
@@ -51,7 +50,7 @@ class FormatBlot extends ContainerBlot implements Formattable {
   update(mutations: MutationRecord[], context: { [key: string]: any }): void {
     super.update(mutations, context);
     if (
-      mutations.some(mutation => {
+      mutations.some((mutation) => {
         return mutation.target === this.domNode && mutation.type === 'attributes';
       })
     ) {
@@ -60,7 +59,7 @@ class FormatBlot extends ContainerBlot implements Formattable {
   }
 
   wrap(name: string | Parent, value?: any): Parent {
-    let wrapper = super.wrap(name, value);
+    const wrapper = super.wrap(name, value);
     if (wrapper instanceof FormatBlot && wrapper.statics.scope === this.statics.scope) {
       this.attributes.move(wrapper);
     }

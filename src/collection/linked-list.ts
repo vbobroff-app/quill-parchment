@@ -13,13 +13,13 @@ class LinkedList<T extends LinkedNode> {
   append(...nodes: T[]): void {
     this.insertBefore(nodes[0], null);
     if (nodes.length > 1) {
-      this.append.apply(this, nodes.slice(1));
+      this.append(...nodes.slice(1));
     }
   }
 
   contains(node: T): boolean {
-    let cur,
-      next = this.iterator();
+    let cur: T | null;
+    const next = this.iterator();
     while ((cur = next())) {
       if (cur === node) return true;
     }
@@ -27,7 +27,7 @@ class LinkedList<T extends LinkedNode> {
   }
 
   insertBefore(node: T | null, refNode: T | null): void {
-    if (!node) return
+    if (!node) return;
     node.next = refNode;
     if (refNode != null) {
       node.prev = refNode.prev;
@@ -71,22 +71,19 @@ class LinkedList<T extends LinkedNode> {
 
   iterator(curNode: T | null = this.head): () => T | null {
     // TODO use yield when we can
-    return function(): T | null {
-      let ret = curNode;
+    return function (): T | null {
+      const ret = curNode;
       if (curNode != null) curNode = <T>curNode.next;
       return ret;
     };
   }
 
-  find(index: number, inclusive: boolean = false): [T | null, number] {
-    let cur,
-      next = this.iterator();
+  find(index: number, inclusive = false): [T | null, number] {
+    let cur: T | null;
+    const next = this.iterator();
     while ((cur = next())) {
-      let length = cur.length();
-      if (
-        index < length ||
-        (inclusive && index === length && (cur.next == null || cur.next.length() !== 0))
-      ) {
+      const length = cur.length();
+      if (index < length || (inclusive && index === length && (cur.next == null || cur.next.length() !== 0))) {
         return [cur, index];
       }
       index -= length;
@@ -95,25 +92,21 @@ class LinkedList<T extends LinkedNode> {
   }
 
   forEach(callback: (cur: T) => void): void {
-    let cur,
-      next = this.iterator();
+    let cur: T | null;
+    const next = this.iterator();
     while ((cur = next())) {
       callback(cur);
     }
   }
 
-  forEachAt(
-    index: number,
-    length: number,
-    callback: (cur: T, offset: number, length: number) => void,
-  ): void {
+  forEachAt(index: number, length: number, callback: (cur: T, offset: number, length: number) => void): void {
     if (length <= 0) return;
-    let [startNode, offset] = this.find(index);
+    const [startNode, offset] = this.find(index);
     let cur,
-      curIndex = index - offset,
-      next = this.iterator(startNode);
+      curIndex = index - offset;
+    const next = this.iterator(startNode);
     while ((cur = next()) && curIndex < index + length) {
-      let curLength = cur.length();
+      const curLength = cur.length();
       if (index > curIndex) {
         callback(cur, index - curIndex, Math.min(length, curIndex + curLength - index));
       } else {
@@ -124,15 +117,15 @@ class LinkedList<T extends LinkedNode> {
   }
 
   map(callback: (cur: T | null) => any): any[] {
-    return this.reduce(function(memo: (T | null)[], cur: T | null) {
+    return this.reduce(function (memo: (T | null)[], cur: T | null) {
       memo.push(callback(cur));
       return memo;
     }, []);
   }
 
   reduce<M>(callback: (memo: M, cur: T) => M, memo: M): M {
-    let cur,
-      next = this.iterator();
+    let cur: T | null;
+    const next = this.iterator();
     while ((cur = next())) {
       memo = callback(memo, cur);
     }

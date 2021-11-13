@@ -2,6 +2,7 @@ import { Formattable } from './abstract/blot';
 import LeafBlot from './abstract/leaf';
 
 class EmbedBlot extends LeafBlot implements Formattable {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static formats(domNode: HTMLElement): any {
     return undefined;
   }

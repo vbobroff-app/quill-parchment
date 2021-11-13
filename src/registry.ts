@@ -1,5 +1,5 @@
 import Attributor from './attributor/attributor';
-import { Blot, Formattable } from './blot/abstract/blot';
+import { Blot } from './blot/abstract/blot';
 
 export interface BlotConstructor {
   blotName: string;
@@ -20,10 +20,10 @@ export class ParchmentError extends Error {
   }
 }
 
-let attributes: { [key: string]: Attributor } = {};
-let classes: { [key: string]: BlotConstructor } = {};
-let tags: { [key: string]: BlotConstructor } = {};
-let types: { [key: string]: Attributor | BlotConstructor } = {};
+const attributes: { [key: string]: Attributor } = {};
+const classes: { [key: string]: BlotConstructor } = {};
+const tags: { [key: string]: BlotConstructor } = {};
+const types: { [key: string]: Attributor | BlotConstructor } = {};
 
 export const DATA_KEY = '__blot';
 
@@ -45,34 +45,27 @@ export enum Scope {
 }
 
 export function create(input: Node | string | Scope, value?: any): Blot {
-  let match = query(input);
+  const match = query(input);
   if (match == null) {
     throw new ParchmentError(`Unable to create ${input} blot`);
   }
-  let BlotClass = <BlotConstructor>match;
-  let node =
-    // @ts-ignore
-    input instanceof Node || input['nodeType'] === Node.TEXT_NODE ? input : BlotClass.create(value);
+  const BlotClass = <BlotConstructor>match;
+  const node = input instanceof Node || (input as any)['nodeType'] === Node.TEXT_NODE ? input : BlotClass.create(value);
   return new BlotClass(<Node>node, value);
 }
 
-export function find(node: Node | null, bubble: boolean = false): Blot | null {
+export function find(node: Node | null, bubble = false): Blot | null {
   if (node == null) return null;
-  // @ts-ignore
-  if (node[DATA_KEY] != null) return node[DATA_KEY].blot;
+  if ((node as any)[DATA_KEY] != null) return (node as any)[DATA_KEY].blot;
   if (bubble) return find(node.parentNode, bubble);
   return null;
 }
 
-export function query(
-  query: string | Node | Scope,
-  scope: Scope = Scope.ANY,
-): Attributor | BlotConstructor | null {
+export function query(query: string | Node | Scope, scope: Scope = Scope.ANY): Attributor | BlotConstructor | null {
   let match;
   if (typeof query === 'string') {
     match = types[query] || attributes[query];
-    // @ts-ignore
-  } else if (query instanceof Text || query['nodeType'] === Node.TEXT_NODE) {
+  } else if (query instanceof Text || (query as any)['nodeType'] === Node.TEXT_NODE) {
     match = types['text'];
   } else if (typeof query === 'number') {
     if (query & Scope.LEVEL & Scope.BLOCK) {
@@ -81,26 +74,25 @@ export function query(
       match = types['inline'];
     }
   } else if (query instanceof HTMLElement) {
-    let names = (query.getAttribute('class') || '').split(/\s+/);
-    for (let i in names) {
+    const names = (query.getAttribute('class') || '').split(/\s+/);
+    for (const i in names) {
       match = classes[names[i]];
       if (match) break;
     }
     match = match || tags[query.tagName];
   }
   if (match == null) return null;
-  // @ts-ignore
-  if (scope & Scope.LEVEL & match.scope && scope & Scope.TYPE & match.scope) return match;
+  if (scope & Scope.LEVEL & (match as any).scope && scope & Scope.TYPE & (match as any).scope) return match;
   return null;
 }
 
 export function register(...Definitions: any[]): any {
   if (Definitions.length > 1) {
-    return Definitions.map(function(d) {
+    return Definitions.map(function (d) {
       return register(d);
     });
   }
-  let Definition = Definitions[0];
+  const Definition = Definitions[0];
   if (typeof Definition.blotName !== 'string' && typeof Definition.attrName !== 'string') {
     throw new ParchmentError('Invalid definition');
   } else if (Definition.blotName === 'abstract') {
@@ -115,14 +107,14 @@ export function register(...Definitions: any[]): any {
     }
     if (Definition.tagName != null) {
       if (Array.isArray(Definition.tagName)) {
-        Definition.tagName = Definition.tagName.map(function(tagName: string) {
+        Definition.tagName = Definition.tagName.map(function (tagName: string) {
           return tagName.toUpperCase();
         });
       } else {
         Definition.tagName = Definition.tagName.toUpperCase();
       }
-      let tagNames = Array.isArray(Definition.tagName) ? Definition.tagName : [Definition.tagName];
-      tagNames.forEach(function(tag: string) {
+      const tagNames = Array.isArray(Definition.tagName) ? Definition.tagName : [Definition.tagName];
+      tagNames.forEach(function (tag: string) {
         if (tags[tag] == null || Definition.className == null) {
           tags[tag] = Definition;
         }
