@@ -1,6 +1,6 @@
 {
   "name": "quill-parchment",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Quill parchment fork with d.ts declarations",
   "main": "dist/parchment.js",
   "files": [

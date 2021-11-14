@@ -42,4 +42,19 @@ const Parchment = {
   },
 };
 
+export {
+  ContainerBlot,
+  FormatBlot,
+  LeafBlot,
+  ScrollBlot,
+  InlineBlot,
+  BlockBlot,
+  EmbedBlot,
+  TextBlot,
+  Attributor,
+  ClassAttributor,
+  StyleAttributor,
+  AttributorStore,
+};
+
 export default Parchment;
